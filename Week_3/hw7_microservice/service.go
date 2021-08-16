@@ -97,7 +97,7 @@ type listeners struct {
 	mu sync.Mutex
 }
 
-func (ls *listeners) addListener() *listener {
+func (ls *listeners) getNewListener() *listener {
 	l := newListener()
 	ls.mu.Lock()
 	defer ls.mu.Unlock()
@@ -134,7 +134,7 @@ func newListener() *listener {
 }
 
 func (aServer *adminServerImpl) Logging(_ *Nothing, outStream Admin_LoggingServer) error {
-	l := aServer.listen.addListener()
+	l := aServer.listen.getNewListener()
 	for {
 		select {
 		case <-l.controlChan:
@@ -148,7 +148,7 @@ func (aServer *adminServerImpl) Logging(_ *Nothing, outStream Admin_LoggingServe
 }
 
 func (aServer *adminServerImpl) Statistics(interval *StatInterval, outStream Admin_StatisticsServer) error {
-	l := aServer.listen.addListener()
+	l := aServer.listen.getNewListener()
 	ticker := time.NewTicker(time.Duration(interval.IntervalSeconds) * time.Second)
 	stat := newStat()
 	for {
